@@ -41,43 +41,78 @@ func createUrl(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responseJSON(w, url)
+	responseJSONCode(w, url, http.StatusCreated)
 }
 
 func readUrls(w http.ResponseWriter, r *http.Request) {
-	// Get posts collection
 	result := []Url{}
 	if err := urls.Find(nil).Sort("-created_at").All(&result); err != nil {
-		responseError(w, err.Error(), http.StatusInternalServerError)
+		responseError(w, err.Error(), http.StatusNotFound)
 	} else {
-		responseJSON(w, result)
+		responseJSONCode(w, result, http.StatusOK)
 	}
 }
 
 func deleteUrl(w http.ResponseWriter, r *http.Request) {
-	// var url Url
 	params := mux.Vars(r)
-	// result := Url{}
-	// err := urls.Find(bson.M{"_id": bson.ObjectIdHex(params["id"])}).One(&result)
-	// if err != nil {
-	// 	responseError(w, "Invalid Url ID", http.StatusBadRequest)
-	// 	return
-	// }
 
-	if err := urls.RemoveId(bson.ObjectIdHex(params["id"])); err != nil {
-		responseError(w, err.Error(), http.StatusInternalServerError)
+	valid := bson.IsObjectIdHex(params["id"])
+	if valid != true {
+		responseJSONCode(w, http.StatusNotFound, http.StatusNotFound)
 		return
 	}
-	responseJSON(w, http.StatusOK)
+
+	if err := urls.RemoveId(bson.ObjectIdHex(params["id"])); err != nil {
+		responseError(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	responseJSONCode(w, http.StatusOK, http.StatusOK)
 }
 
 func showUrl(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
+
+	valid := bson.IsObjectIdHex(params["id"])
+	if valid != true {
+		responseJSONCode(w, http.StatusNotFound, http.StatusNotFound)
+		return
+	}
+
 	result := Url{}
 	err := urls.Find(bson.M{"_id": bson.ObjectIdHex(params["id"])}).One(&result)
 	if err != nil {
-		responseError(w, "Invalid Url ID", http.StatusBadRequest)
+		responseError(w, "Invalid Url ID", http.StatusNotFound)
 		return
 	}
-	responseJSON(w, result)
+	responseJSONCode(w, result, http.StatusOK)
+}
+
+func updateUrl(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+
+	valid := bson.IsObjectIdHex(params["id"])
+	if valid != true {
+		responseJSONCode(w, http.StatusNotFound, http.StatusNotFound)
+		return
+	}
+
+	data, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		responseError(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	url := &Url{}
+	err = json.Unmarshal(data, url)
+	if err != nil {
+		responseError(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := urls.UpdateId(bson.ObjectIdHex(params["id"]), url); err != nil {
+		responseError(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	responseJSONCode(w, url, http.StatusOK)
 }

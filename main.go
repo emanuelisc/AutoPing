@@ -14,6 +14,7 @@ import (
 // var session *mgo.Session
 var urls *mgo.Collection
 var servers *mgo.Collection
+var users *mgo.Collection
 
 func main() {
 	// Connect to mongo
@@ -45,5 +46,11 @@ func responseError(w http.ResponseWriter, message string, code int) {
 
 func responseJSON(w http.ResponseWriter, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(data)
+}
+
+func responseJSONCode(w http.ResponseWriter, data interface{}, code int) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
 	json.NewEncoder(w).Encode(data)
 }

@@ -14,12 +14,22 @@ type Routes []Route
 var routes = Routes{
 	//URL Routes
 	Route{"CreateUrl", "POST", "/urls", createUrl},
-	Route{"ReadUrls", "GET", "/urls", readUrls},
+	Route{"ReadAllUrls", "GET", "/urls", readUrls},
 	Route{"DeleteUrl", "DELETE", "/urls/{id}", deleteUrl},
 	Route{"GetUrl", "GET", "/urls/{id}", showUrl},
+	Route{"UpdateUrl", "PUT", "/urls/{id}", updateUrl},
 	//Server Routes
 	Route{"CreateServer", "POST", "/servers", createServer},
-	Route{"ReadServers", "GET", "/servers", readServers},
+	Route{"ReadAllServers", "GET", "/servers", readServers},
 	Route{"DeleteServer", "DELETE", "/servers/{id}", deleteServer},
 	Route{"GetServer", "GET", "/servers/{id}", showServer},
+	Route{"UpdateServer", "PUT", "/servers/{id}", updateServer},
+	//Stat Routes
+	Route{"GetStats", "POST", "/stats/{id}", showStats},
+	//User Routes
+	Route{"CreateUser", "POST", "/users", createUser},
+	Route{"ReadAllUsers", "GET", "/users", readUsers},
+	Route{"DeleteUser", "DELETE", "/users/{id}", deleteUser},
+	Route{"GetUser", "GET", "/users/{id}", showUser},
+	Route{"UpdateUser", "PUT", "/users/{id}", updateUser},
 }

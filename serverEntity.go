@@ -39,23 +39,29 @@ func createServer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	responseJSON(w, server)
+	responseJSONCode(w, server, http.StatusCreated)
 }
 
 func readServers(w http.ResponseWriter, r *http.Request) {
 	result := []Server{}
 	if err := servers.Find(nil).Sort("-created_at").All(&result); err != nil {
-		responseError(w, err.Error(), http.StatusInternalServerError)
+		responseError(w, err.Error(), http.StatusNotFound)
 	} else {
-		responseJSON(w, result)
+		responseJSONCode(w, result, http.StatusOK)
 	}
 }
 
 func deleteServer(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 
+	valid := bson.IsObjectIdHex(params["id"])
+	if valid != true {
+		responseJSONCode(w, http.StatusNotFound, http.StatusNotFound)
+		return
+	}
+
 	if err := servers.RemoveId(bson.ObjectIdHex(params["id"])); err != nil {
-		responseError(w, err.Error(), http.StatusInternalServerError)
+		responseError(w, err.Error(), http.StatusNotFound)
 		return
 	}
 	responseJSON(w, http.StatusOK)
@@ -63,11 +69,48 @@ func deleteServer(w http.ResponseWriter, r *http.Request) {
 
 func showServer(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
+
+	valid := bson.IsObjectIdHex(params["id"])
+	if valid != true {
+		responseJSONCode(w, http.StatusNotFound, http.StatusNotFound)
+		return
+	}
+
 	result := Server{}
 	err := servers.Find(bson.M{"_id": bson.ObjectIdHex(params["id"])}).One(&result)
 	if err != nil {
-		responseError(w, "Invalid Server ID", http.StatusBadRequest)
+		responseError(w, "Invalid Server ID", http.StatusNotFound)
 		return
 	}
 	responseJSON(w, result)
+}
+
+func updateServer(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+
+	valid := bson.IsObjectIdHex(params["id"])
+	if valid != true {
+		responseJSONCode(w, http.StatusNotFound, http.StatusNotFound)
+		return
+	}
+
+	data, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		responseError(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	server := &Server{}
+	err = json.Unmarshal(data, server)
+	if err != nil {
+		responseError(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if err := servers.UpdateId(bson.ObjectIdHex(params["id"]), server); err != nil {
+		responseError(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	responseJSONCode(w, server, http.StatusOK)
 }
