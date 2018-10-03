@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"time"
-
+	// "fmt"
 	"github.com/gorilla/mux"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -28,6 +28,14 @@ func createUrl(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	ua := r.Header.Get("Content-Type")
+
+	if ua != "application/json" {
+		responseCode(w, http.StatusUnsupportedMediaType)
+		return
+	}
+
+	// log.Printf(data)
 	url := &Url{}
 	err = json.Unmarshal(data, url)
 	if err != nil {
@@ -58,7 +66,7 @@ func deleteUrl(w http.ResponseWriter, r *http.Request) {
 
 	valid := bson.IsObjectIdHex(params["id"])
 	if valid != true {
-		responseJSONCode(w, http.StatusNotFound, http.StatusNotFound)
+		responseCode(w, http.StatusNotFound)
 		return
 	}
 
@@ -66,7 +74,7 @@ func deleteUrl(w http.ResponseWriter, r *http.Request) {
 		responseError(w, err.Error(), http.StatusNotFound)
 		return
 	}
-	responseJSONCode(w, http.StatusOK, http.StatusOK)
+	responseCode(w, http.StatusNoContent)
 }
 
 func showUrl(w http.ResponseWriter, r *http.Request) {
@@ -74,7 +82,7 @@ func showUrl(w http.ResponseWriter, r *http.Request) {
 
 	valid := bson.IsObjectIdHex(params["id"])
 	if valid != true {
-		responseJSONCode(w, http.StatusNotFound, http.StatusNotFound)
+		responseCode(w, http.StatusNotFound)
 		return
 	}
 
@@ -92,13 +100,20 @@ func updateUrl(w http.ResponseWriter, r *http.Request) {
 
 	valid := bson.IsObjectIdHex(params["id"])
 	if valid != true {
-		responseJSONCode(w, http.StatusNotFound, http.StatusNotFound)
+		responseCode(w, http.StatusNotFound)
 		return
 	}
 
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		responseError(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	ua := r.Header.Get("Content-Type")
+
+	if ua != "application/json" {
+		responseCode(w, http.StatusBadRequest)
 		return
 	}
 

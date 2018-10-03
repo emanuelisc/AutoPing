@@ -54,3 +54,9 @@ func responseJSONCode(w http.ResponseWriter, data interface{}, code int) {
 	w.WriteHeader(code)
 	json.NewEncoder(w).Encode(data)
 }
+
+func responseCode(w http.ResponseWriter, code int) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	// json.NewEncoder(w).Encode(data)
+}
