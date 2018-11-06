@@ -13,11 +13,11 @@ type Routes []Route
 
 var routes = Routes{
 	//URL Routes
-	Route{"CreateUrl", "POST", "/urls", createUrl},
-	Route{"ReadAllUrls", "GET", "/urls", readUrls},
-	Route{"DeleteUrl", "DELETE", "/urls/{id}", deleteUrl},
-	Route{"GetUrl", "GET", "/urls/{id}", showUrl},
-	Route{"UpdateUrl", "PUT", "/urls/{id}", updateUrl},
+	Route{"CreateUrl", "POST", "/urls", ValidateMiddleware(createUrl)},
+	Route{"ReadAllUrls", "GET", "/urls", ValidateMiddleware(readUrls)},
+	Route{"DeleteUrl", "DELETE", "/urls/{id}", ValidateMiddleware(deleteUrl)},
+	Route{"GetUrl", "GET", "/urls/{id}", ValidateMiddleware(showUrl)},
+	Route{"UpdateUrl", "PUT", "/urls/{id}", ValidateMiddleware(updateUrl)},
 	//Server Routes
 	Route{"CreateServer", "POST", "/servers", createServer},
 	Route{"ReadAllServers", "GET", "/servers", readServers},

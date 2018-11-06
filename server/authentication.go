@@ -32,6 +32,13 @@ func CreateTokenEndpoint(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	ua := req.Header.Get("Content-Type")
+
+	if ua != "application/json" {
+		responseCode(w, http.StatusUnsupportedMediaType)
+		return
+	}
+
 	user := &User{}
 	err = json.Unmarshal(data, user)
 	if err != nil {
@@ -66,7 +73,7 @@ func CreateTokenEndpoint(w http.ResponseWriter, req *http.Request) {
 func ProtectedEndpoint(w http.ResponseWriter, req *http.Request) {
 	// params := req.URL.Query()
 	// log.Print(req.Header.Get("token"))
-	token, _ := jwt.Parse(req.Header.Get("token"), func(token *jwt.Token) (interface{}, error) {
+	token, _ := jwt.Parse(req.Header.Get("authorization"), func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 					return nil, fmt.Errorf("There was an error")
 			}
