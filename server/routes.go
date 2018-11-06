@@ -26,10 +26,16 @@ var routes = Routes{
 	Route{"UpdateServer", "PUT", "/servers/{id}", updateServer},
 	//Stat Routes
 	Route{"GetStats", "POST", "/stats/{id}", showStats},
+	//Ping Routes
+	Route{"GetPing", "GET", "/ping/{address}", pingReq},
 	//User Routes
 	Route{"CreateUser", "POST", "/users", createUser},
 	Route{"ReadAllUsers", "GET", "/users", readUsers},
 	Route{"DeleteUser", "DELETE", "/users/{id}", deleteUser},
 	Route{"GetUser", "GET", "/users/{id}", showUser},
 	Route{"UpdateUser", "PUT", "/users/{id}", updateUser},
+	//Authentication
+	Route{"Login", "POST", "/authenticate", CreateTokenEndpoint},
+	Route{"Protected", "GET", "/protected", ProtectedEndpoint},
+	Route{"Test", "GET", "/test", ValidateMiddleware(TestEndpoint)},
 }

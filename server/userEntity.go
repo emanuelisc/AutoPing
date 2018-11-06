@@ -12,11 +12,9 @@ import (
 
 type User struct {
 	Id          bson.ObjectId `json:"id" bson:"_id,omitempty"`
-	Name        string        `json:"name" bson:"name"`
-	Ip          string        `json:"ip" bson:"ip"`
-	Description string        `json:"description" bson:"description"`
 	Servers     string        `json:"servers" bson:"servers"`
-	User        string        `json:"user" bson:"user"`
+	Username		string        `json:"username" bson:"username"`
+	Password		string        `json:"password" bson:"password"`
 	CreatedAt   time.Time     `json:"createdAt" bson:"created_at"`
 }
 
@@ -28,20 +26,43 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	ua := r.Header.Get("Content-Type")
+
+	if ua != "application/json" {
+		responseCode(w, http.StatusUnsupportedMediaType)
+		return
+	}
+
+	// log.Printf(data)
 	user := &User{}
 	err = json.Unmarshal(data, user)
 	if err != nil {
 		responseError(w, err.Error(), http.StatusBadRequest)
+		return	
+	}
+
+	result := User{}
+	err = users.Find(bson.M{"username": user.Username}).One(&result)
+	if err == nil {
+		responseError(w, "User already exists", http.StatusConflict)
 		return
 	}
-	user.CreatedAt = time.Now().UTC()
 
+	user.CreatedAt = time.Now().UTC()
+	password := user.Password
+	
+	user.Password, err = HashPassword(password)
+	if err != nil {
+		responseError(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	
 	if err := users.Insert(user); err != nil {
 		responseError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	responseJSON(w, user)
+	responseCode(w, http.StatusCreated)
 }
 
 func readUsers(w http.ResponseWriter, r *http.Request) {
@@ -56,11 +77,17 @@ func readUsers(w http.ResponseWriter, r *http.Request) {
 func deleteUser(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 
-	if err := users.RemoveId(bson.ObjectIdHex(params["id"])); err != nil {
-		responseError(w, err.Error(), http.StatusInternalServerError)
+	valid := bson.IsObjectIdHex(params["id"])
+	if valid != true {
+		responseCode(w, http.StatusNotFound)
 		return
 	}
-	responseJSON(w, http.StatusOK)
+
+	if err := users.RemoveId(bson.ObjectIdHex(params["id"])); err != nil {
+		responseError(w, err.Error(), http.StatusNotFound)
+		return
+	}
+	responseCode(w, http.StatusNoContent)
 }
 
 func showUser(w http.ResponseWriter, r *http.Request) {

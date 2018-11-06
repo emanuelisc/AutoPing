@@ -30,6 +30,7 @@ func main() {
 	// Get posts collection
 	urls = session.DB("app").C("urls")
 	servers = session.DB("app").C("servers")
+	users = session.DB("app").C("users")
 
 	router := NewRouter()
 
