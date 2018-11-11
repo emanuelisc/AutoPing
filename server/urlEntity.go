@@ -89,14 +89,29 @@ func deleteUrl(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 
 	// 3. Check if Params are valid
+	id := bson.ObjectIdHex(params["id"])
 	valid := bson.IsObjectIdHex(params["id"])
 	if valid != true {
 		responseError(w, "Invalid Url ID", http.StatusNotFound)
 		return
 	}
 
-	// 4. Remove Object from Database
-	if err := urls.RemoveId(bson.ObjectIdHex(params["id"])); err != nil {
+	// 4. Find Object 
+	result := Url{}
+	err = urls.Find(bson.M{"_id": id}).One(&result)
+	if err != nil {
+		responseError(w, "Invalid Url ID", http.StatusNotFound)
+		return
+	}
+
+	// 5. Check if User can delete Resource
+	if result.User != user.Username {
+		responseError(w, "You don't have permision!", http.StatusUnauthorized)
+		return
+	}
+
+	// 6. Remove Object from Database
+	if err := urls.RemoveId(id); err != nil {
 		responseError(w, err.Error(), http.StatusNotFound)
 		return
 	}
@@ -114,6 +129,7 @@ func showUrl(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 
 	// 3. Check if Params are valid
+	id := bson.ObjectIdHex(params["id"])
 	valid := bson.IsObjectIdHex(params["id"])
 	if valid != true {
 		responseError(w, "Invalid Url ID", http.StatusNotFound)
@@ -122,7 +138,7 @@ func showUrl(w http.ResponseWriter, r *http.Request) {
 
 	// 4. Find Object 
 	result := Url{}
-	err := urls.Find(bson.M{"_id": bson.ObjectIdHex(params["id"])}).One(&result)
+	err := urls.Find(bson.M{"_id": id}).One(&result)
 	if err != nil {
 		responseError(w, "Invalid Url ID", http.StatusNotFound)
 		return
