@@ -5,9 +5,12 @@ import (
 	"io/ioutil"
 	"net/http"
 	"time"
-
+	// "fmt"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
 	"gopkg.in/mgo.v2/bson"
+	"github.com/gorilla/context"
+	"github.com/mitchellh/mapstructure"
 )
 
 type Server struct {
@@ -179,7 +182,7 @@ func updateServer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 7. Return Data
-	if err := servers.UpdateId(bson.ObjectIdHex(params["id"]), server); err != nil {
+	if err := servers.UpdateId(id, server); err != nil {
 		responseError(w, err.Error(), http.StatusNotFound)
 		return
 	}

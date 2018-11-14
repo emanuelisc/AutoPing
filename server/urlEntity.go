@@ -98,7 +98,7 @@ func deleteUrl(w http.ResponseWriter, r *http.Request) {
 
 	// 4. Find Object 
 	result := Url{}
-	err = urls.Find(bson.M{"_id": id}).One(&result)
+	err := urls.Find(bson.M{"_id": id}).One(&result)
 	if err != nil {
 		responseError(w, "Invalid Url ID", http.StatusNotFound)
 		return
@@ -111,7 +111,7 @@ func deleteUrl(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 6. Remove Object from Database
-	if err := urls.RemoveId(id); err != nil {
+	if err = urls.RemoveId(id); err != nil {
 		responseError(w, err.Error(), http.StatusNotFound)
 		return
 	}

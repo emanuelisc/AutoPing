@@ -33,7 +33,7 @@ func CreateTokenEndpoint(w http.ResponseWriter, req *http.Request) {
 	}
 
 	ua := req.Header.Get("Content-Type")
-
+	log.Print(ua)
 	if ua != "application/json" {
 		responseCode(w, http.StatusUnsupportedMediaType)
 		return
