@@ -31,7 +31,7 @@ func createUrl(w http.ResponseWriter, r *http.Request) {
 	mapstructure.Decode(decoded.(jwt.MapClaims), &user)
 
 	// 2. Check Content-Type
-	ua := req.Header.Get("Content-Type")
+	ua := r.Header.Get("Content-Type")
 	if ua != "application/json" || ua != "application/json; charset=utf-8" {
 		responseCode(w, http.StatusUnsupportedMediaType)
 		return
