@@ -150,7 +150,7 @@ func updateServer(w http.ResponseWriter, r *http.Request) {
 
 	// 3. Check Content-Type
 	ua := r.Header.Get("Content-Type")
-	if ua != "application/json" {
+	if ua != "application/json" || ua != "application/json; charset=utf-8" {
 		responseCode(w, http.StatusBadRequest)
 		return
 	}
