@@ -5,9 +5,10 @@ import (
 	"io/ioutil"
 	"net/http"
 	"time"
-
+	"strings"
 	"github.com/gorilla/mux"
 	"gopkg.in/mgo.v2/bson"
+	"log"
 )
 
 type User struct {
@@ -25,29 +26,26 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 		responseError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
 	ua := r.Header.Get("Content-Type")
-
-	if ua != "application/json" {
+	if !strings.Contains(ua, "application/json") {
 		responseCode(w, http.StatusUnsupportedMediaType)
 		return
 	}
-
-	// log.Printf(data)
 	user := &User{}
 	err = json.Unmarshal(data, user)
 	if err != nil {
 		responseError(w, err.Error(), http.StatusBadRequest)
 		return	
 	}
-
 	result := User{}
 	err = users.Find(bson.M{"username": user.Username}).One(&result)
+	log.Printf("1")
 	if err == nil {
 		responseError(w, "User already exists", http.StatusConflict)
+		log.Printf("2")
 		return
 	}
-
+	log.Printf("4")
 	user.CreatedAt = time.Now().UTC()
 	password := user.Password
 	

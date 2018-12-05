@@ -10,6 +10,7 @@ import (
 	"github.com/gorilla/mux"
 	"gopkg.in/mgo.v2/bson"
 	"github.com/gorilla/context"
+	"strings"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -32,8 +33,9 @@ func createServer(w http.ResponseWriter, r *http.Request) {
 	// 2. Check user role
 
 	// 3. Check Content-Type
-	if r.Header.Get("Content-Type") != "application/json" {
-		responseCode(w, http.StatusBadRequest)
+	ua := r.Header.Get("Content-Type")
+	if !strings.Contains(ua, "application/json") {
+		responseCode(w, http.StatusUnsupportedMediaType)
 		return
 	}
 
@@ -67,9 +69,6 @@ func createServer(w http.ResponseWriter, r *http.Request) {
 func readServers(w http.ResponseWriter, r *http.Request) {
 
 	// 1. Get logged in User
-	decoded := context.Get(r, "decoded")
-	var user User
-	mapstructure.Decode(decoded.(jwt.MapClaims), &user)
 
 	// 2. Check User role
 

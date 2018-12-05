@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 	// "fmt"
+	"strings"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
 	"gopkg.in/mgo.v2/bson"
@@ -18,7 +19,8 @@ type Url struct {
 	Name        string        `json:"name" bson:"name"`
 	Ip          string        `json:"ip" bson:"ip"`
 	Description string        `json:"description" bson:"description"`
-	Servers     []Server        `json:"servers" bson:"servers"`
+	Interval 	string        	  `json:"interval" bson:"interval"`
+	// Servers     []Server        `json:"servers" bson:"servers"`
 	User        string		 		`json:"user" bson:"user"`
 	CreatedAt   time.Time     `json:"createdAt" bson:"created_at"`
 }
@@ -32,7 +34,7 @@ func createUrl(w http.ResponseWriter, r *http.Request) {
 
 	// 2. Check Content-Type
 	ua := r.Header.Get("Content-Type")
-	if ua != "application/json" || ua != "application/json; charset=utf-8" {
+	if !strings.Contains(ua, "application/json") {
 		responseCode(w, http.StatusUnsupportedMediaType)
 		return
 	}
@@ -162,8 +164,8 @@ func updateUrl(w http.ResponseWriter, r *http.Request) {
 
 	// 2. Check Content-Type
 	ua := r.Header.Get("Content-Type")
-	if ua != "application/json" {
-		responseCode(w, http.StatusBadRequest)
+	if !strings.Contains(ua, "application/json") {
+		responseCode(w, http.StatusUnsupportedMediaType)
 		return
 	}
 

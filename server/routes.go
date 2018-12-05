@@ -19,11 +19,11 @@ var routes = Routes{
 	Route{"GetUrl", "GET", "/urls/{id}", ValidateMiddleware(showUrl)},
 	Route{"UpdateUrl", "PUT", "/urls/{id}", ValidateMiddleware(updateUrl)},
 	//Server Routes
-	Route{"CreateServer", "POST", "/servers", createServer},
+	Route{"CreateServer", "POST", "/servers", ValidateMiddleware(createServer)},
 	Route{"ReadAllServers", "GET", "/servers", readServers},
-	Route{"DeleteServer", "DELETE", "/servers/{id}", deleteServer},
+	Route{"DeleteServer", "DELETE", "/servers/{id}", ValidateMiddleware(deleteServer)},
 	Route{"GetServer", "GET", "/servers/{id}", showServer},
-	Route{"UpdateServer", "PUT", "/servers/{id}", updateServer},
+	Route{"UpdateServer", "PUT", "/servers/{id}", ValidateMiddleware(updateServer)},
 	//Stat Routes
 	Route{"GetStats", "POST", "/stats/{id}", showStats},
 	//Ping Routes
