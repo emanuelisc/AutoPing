@@ -30,3 +30,25 @@ func showStats(w http.ResponseWriter, r *http.Request) {
 	}
 	responseJSON(w, result)
 }
+
+func avarageResponseTime(a []float64) float64 {
+	sum := float64(0)
+	length := float64(0)
+	for _, value := range a {
+		sum = sum + value
+		length = length + 1
+	}
+	return sum / length
+}
+
+func getAvarageResults(data float64) string {
+	if data < 0.001 {
+		return "Good"
+	} else if data > 0.001 && data < 0.01 {
+		return "Avarage"
+	} else if data > 0.01 && data < 1.0 {
+		return "Bad"
+	} else {
+		return "NoData"
+	}
+}
